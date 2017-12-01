@@ -1,1 +1,1 @@
-"# BedrockWS" 
+# BedrockWS
