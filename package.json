@@ -1,0 +1,29 @@
+{
+  "name": "bedrockws",
+  "version": "1.0.0",
+  "description": "connect to MCBE through websockets. inspired by PEWS",
+  "main": "src/Server.js",
+  "dependencies": {
+    "ws": "^3.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node Server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eDroiid/BedrockWS.git"
+  },
+  "keywords": [
+    "bedrockws",
+    "pews",
+    "bews",
+    "minecraftws"
+  ],
+  "author": "eDroid",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eDroiid/BedrockWS/issues"
+  },
+  "homepage": "https://github.com/eDroiid/BedrockWS#readme"
+}
