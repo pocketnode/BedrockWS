@@ -2,21 +2,25 @@
 
 Starting up the first time:
 ```text
-$ npm i && node Server
+git clone https://github.com/eDroiid/BedrockWS.git
+cd BedrockWS
+npm i && node Server
 ```
 
-Server.js: a simple chat logger
-```javascript
-const Server = require("./src/Server");
-const Listener = require("./src/event/Listener");
-const PlayerMessageEvent = require("./src/event/player/PlayerMessageEvent");
 
-const listener = new Listener();
-listener.subscribe(PlayerMessageEvent, function(data){
-    console.log(data.sender + ": " + data.message);
-});
+Another way:
+```text
+npm i https://github.com/eDroiid/BedrockWS.git
+node MyServer.js
+```
 
-new Server(80, listener);
+`MyServer.js`:
+```js
+const MyServer = new (require("bedrockws"))();
+
+MyServer.on("PlayerMessage", event => console.log(`${event.sender}: ${event.message}`));
+
+MyServer.listen(80);
 ```
 
 In Minecraft run `/connect localhost`. Send a message. Check your command line.
