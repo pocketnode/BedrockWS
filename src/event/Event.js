@@ -1,10 +1,22 @@
 class Event {
-	constructor(name){
-		this.name = name;
+    static name(){
+        return "";
+    }
+
+    name(){
+        return this.constructor.name();
+    }
+
+	constructor(){
+        this._data = null;
 	}
 
-	onData(data){
-        return data;
+    getData(){
+        return this._data;
+    }
+
+	handle(data){
+        this.data = data;
     }
 }
 

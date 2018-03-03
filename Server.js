@@ -1,10 +1,12 @@
 const Server = require("./src/Server");
-const Listener = require("./src/event/Listener");
-const PlayerMessageEvent = require("./src/event/player/PlayerMessageEvent");
 
-const listener = new Listener();
-listener.subscribe(PlayerMessageEvent, function(data){
-	console.log(data.sender + ": " + data.message);
+const server = new Server();
+
+server.on("ClientConnect", () => console.log("Client Connected!"));
+server.on("ClientDisconnect", () => console.log("Client Disconnected!"));
+
+server.on("PlayerMessage", event => {
+	console.log(event.sender + ": " + event.message);
 });
 
-new Server(80, listener);
+server.listen(80);

@@ -1,8 +1,8 @@
 const Event = require("../Event");
 
 class PlayerLeaveEvent extends Event {
-    constructor(){
-        super("PlayerLeave");
+    static name(){
+        return "PlayerLeave";
     }
 }
 

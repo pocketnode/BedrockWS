@@ -1,15 +1,13 @@
 const Event = require("../Event");
 
 class BlockPlacedEvent extends Event {
-    constructor(){
-        super("BlockPlaced");
+    static name(){
+        return "BlockPlaced";
     }
 
-    onData(data){
-        let BlockPlaced = {};
-        BlockPlaced.id = data.body.properties.Type;
-        BlockPlaced.damage = data.body.properties.AuxType;
-        return BlockPlaced;
+    handle(data){
+        this.id = data.body.properties.Type;
+        this.damage = data.body.properties.AuxType;
     }
 }
 

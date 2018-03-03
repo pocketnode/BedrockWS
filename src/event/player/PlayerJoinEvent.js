@@ -1,8 +1,12 @@
 const Event = require("../Event");
 
 class PlayerJoinEvent extends Event {
-    constructor(){
-        super("PlayerJoin");
+    static name(){
+        return "PlayerJoin";
+    }
+
+    handle(data){
+        //this.data = data;
     }
 }
 

@@ -1,15 +1,27 @@
 class Dispatcher {
-	constructor(){
-		this.awaiting_commands = {};
+	constructor(server){
+        this.server = server;
+		this.awaitingCommands = new Map();
+
+        server.socket.clients.forEach(socket => {
+            socket.on("message", message => {
+                message = JSON.parse(message);
+
+                if(data.header.messagePurpose === "")
+            });
+        });
 	}
 
-	run(command, callback){
-		this.awaiting_commands[command.name] = {args: command.args, onresponse: command.onresponse, callback: callback};
-	}
+	run(recipients, command, callback){
+        if(recipients === "all"){
+            command = command.toObject();
+            this.server.jsonAll(command);
+            this.awaitingCommands.set(command.header.requestId, callback);
+            console.log("Awaiting Commands:", this.awaitingCommands);
+        }else{
 
-	unsubscribe(event){
-		delete this.subscribed_events[event.name];
+        }
 	}
 }
 
-module.exports = Listener;
+module.exports = Dispatcher;

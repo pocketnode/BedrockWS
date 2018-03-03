@@ -1,60 +1,98 @@
-const WebSocket = require("ws"),
-	Listener = require("./event/Listener"),
-	InvalidParameterError = require("./error/InvalidParameterError");
+const WebSocket = require("ws");
+const uuidv4 = require("uuid/v4");
 
-class Server {
-	constructor(port, listener){
-		if(!(listener instanceof Listener)) throw new InvalidParameterError("Invalid listener!");
+const Event = require("./event/Event");
+const EventPool = require("./event/EventPool");
 
-		this.socket = new WebSocket.Server({port: port});
+const EventEmitter = require("events");
 
-		this.socket.on("connection", function(socket) {
-			socket.json = function(obj){return this.send(JSON.stringify(obj))};
+class Server extends EventEmitter {
+	constructor(){
+		super();
+		this._socket = null;
+	}
 
-			console.log("Client Connected!");
+	listen(port){
+		let server = this;
 
-			for(let [eventName] of listener.subscribedEvents){
-				socket.json({
-				    body: {
-				        eventName: eventName
-				    },
-				    header: {
-				        requestId: "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxxx",
-				        messagePurpose: "subscribe",
-				        version: 1,
-				        messageType: "commandRequest"
-				    }
-				});
-			}
+		this._socket = new WebSocket.Server({port});
+
+		this._socket.on("connection", socket => {
+			socket.json = obj => socket.send(JSON.stringify(obj));
+
+			server.emit(EventPool.ClientConnect);
+
+			server.eventNames().filter(e => EventPool[e] !== undefined).forEach(event => {
+                let uuid = uuidv4();
+                socket.json({
+                    body: {
+                        eventName: event
+                    },
+                    header: {
+                        requestId: uuid,
+                        messagePurpose: "subscribe",
+                        version: 1,
+                        messageType: "commandRequest"
+                    }
+                });
+            });
 
 		    socket.on("message", function(message) {
 		    	let data = JSON.parse(message);
 
 		    	switch(data.header.messagePurpose){
-		    		case "event":
-		    			if(listener.isListeningFor(data.body.eventName)){
-		    				let event = listener.getEvent(data.body.eventName);
-			    			event.callback(event.onData(data), socket); //remove later!!!!!!
-		    			}
-		    			break;
-
 		    		case "error":
-		    			console.log("ERROR:", data);
+		    			console.log("Error recieved:", data);
 		    			break;
 
-		    		default:
-		    			console.log("Unhandled Message Purpose. Here is the data:", data);
-		    			break;
-
+		    		case "event":
+		    			if(server.eventNames().indexOf(data.body.eventName) === -1) return;
+		    			let event;
+		    			if((event = EventPool[data.body.eventName]) !== undefined){
+		    				event = new event();
+		    				event._data = data;
+		    				event.handle(data);
+		    				server.emit(event.name(), event, socket);
+			            }else{
+			            	server.emit(data.body.eventName, data, socket);
+			            }
+			            break;
 		    	}
 		    });
 
-		    socket.on("close", function(){
-		        console.log("Client Disconnected.");
-		    });
+		    socket.on("close", () => server.emit(EventPool.ClientDisconnect));
 		});
 
+		this._socket.jsonAll = function(obj){
+			this.clients.forEach(client => {
+		    	if(client.readyState === WebSocket.OPEN){
+		      		client.json(obj);
+		    	}
+		  	});
+		};
+
     	console.log("Server Created! Listening on port %s", port);
+	}
+
+	on(event, listener){
+		if(typeof event !== "string"){
+			event = event.name();
+		}
+		return super.on(event, listener);
+	}
+
+	once(event, listener){
+		if(typeof event !== "string"){
+			event = event.name();
+		}
+		return super.once(event, listener);
+	}
+
+	emit(event, ...args){
+		if(typeof event !== "string"){
+			event = event.name();
+		}
+		return super.emit.apply(this, [event].concat(args));
 	}
 }
 

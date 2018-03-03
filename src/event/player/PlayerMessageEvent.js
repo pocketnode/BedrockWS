@@ -1,17 +1,19 @@
 const Event = require("../Event");
 
 class PlayerMessageEvent extends Event {
-    constructor(){
-        super("PlayerMessage");
+    static name(){
+        return "PlayerMessage";
     }
 
-    onData(data){
-        let PlayerMessage = {};
-
-        PlayerMessage.sender = data.body.properties.Sender;
-        PlayerMessage.message = data.body.properties.Message;
-        
-        return PlayerMessage;
+    handle(data){
+        this.sender = data.body.properties.Sender;
+        this.message = data.body.properties.Message;
+        this.type = data.body.properties.MessageType;
+        this.minecraft = {
+            version: data.body.properties.Build,
+            platform: data.body.properties.Plat,
+            gamemode: data.body.properties.PlayerGameMode
+        }
     }
 }
 
