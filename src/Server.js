@@ -20,9 +20,9 @@ class Server extends EventEmitter {
 		this._socket.on("connection", socket => {
 			socket.json = obj => socket.send(JSON.stringify(obj));
 
-			server.emit(EventPool.ClientConnect);
+			server.emit(EventPool.Server.ClientConnect);
 
-			server.eventNames().filter(e => EventPool[e] !== undefined).forEach(event => {
+			server.eventNames().filter(e => EventPool.Client[e] !== undefined).forEach(event => {
                 let uuid = uuidv4();
                 socket.json({
                     body: {
@@ -48,7 +48,7 @@ class Server extends EventEmitter {
 		    		case "event":
 		    			if(server.eventNames().indexOf(data.body.eventName) === -1) return;
 		    			let event;
-		    			if((event = EventPool[data.body.eventName]) !== undefined){
+		    			if((event = EventPool.Client[data.body.eventName]) !== undefined){
 		    				event = new event();
 		    				event._data = data;
 		    				event.handle(data);
@@ -60,7 +60,7 @@ class Server extends EventEmitter {
 		    	}
 		    });
 
-		    socket.on("close", () => server.emit(EventPool.ClientDisconnect));
+		    socket.on("close", () => server.emit(EventPool.Server.ClientDisconnect));
 		});
 
 		this._socket.jsonAll = function(obj){
