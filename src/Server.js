@@ -12,10 +12,10 @@ class Server extends EventEmitter {
 		this._socket = null;
 	}
 
-	listen(port){
+	listen(port = process.env.PORT, ws_options = {}){
 		let server = this;
 
-		this._socket = new WebSocket.Server({port});
+		this._socket = new WebSocket.Server(Object.assign({port}, ws_options));
 
 		this._socket.on("connection", socket => {
 			socket.json = obj => socket.send(JSON.stringify(obj));
